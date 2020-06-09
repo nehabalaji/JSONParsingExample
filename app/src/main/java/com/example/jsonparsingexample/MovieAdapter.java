@@ -1,6 +1,7 @@
 package com.example.jsonparsingexample;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,29 +13,31 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MyViewHolder>{
 
     private Context context;
-    private List<Movies> movies;
+    private List<Movies> movies = new ArrayList<>();
 
 
     public MovieAdapter(Context context, List<Movies> moviesList){
         this.context = context;
-        this.movies = moviesList;
+        movies = moviesList;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.movie_list_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_list_item, parent, false);
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.title.setText(movies.get(position).getTitle());
+        Log.v("TAGLOG", movies.get(position).getTitle());
         Glide.with(context).load(movies.get(position).getImageUrl()).into(holder.image);
     }
 

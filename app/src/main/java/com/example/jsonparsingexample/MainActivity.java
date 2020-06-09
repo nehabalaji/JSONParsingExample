@@ -1,9 +1,11 @@
 package com.example.jsonparsingexample;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,10 +31,10 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
-    private static final String USGS_REQUEST_URL = "http://velmm.com/apis/volley_array.json";
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     MovieAdapter movieAdapter;
     List<Movies> moviesList = new ArrayList<>();
+    List<Movies> movies = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +48,37 @@ public class MainActivity extends AppCompatActivity {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                Uri baseUri = Uri.parse(USGS_REQUEST_URL);
-                Uri.Builder uriBuilder = baseUri.buildUpon();
-                Log.e("TAG", ""+uriBuilder);
-                moviesList = QueryUtils.fetchMovieData(uriBuilder.toString());
+                AssetManager assetManager = MainActivity.this.getAssets();
+                BufferedReader bufferedReader = null;
+                StringBuilder stringBuilder = new StringBuilder();
+                String json = "";
+                try{
+                    bufferedReader = new BufferedReader(new InputStreamReader(assetManager.open("movieJsonData.json")));
+                    String mLine;
+                    while ((mLine=bufferedReader.readLine()) != null){
+                        stringBuilder.append(mLine);
+                    }
+                    json = stringBuilder.toString();
+                    Log.v("TAG", json);
+                } catch (IOException e) {
+                    //Log
+                }
+                finally {
+                    if(bufferedReader!=null){
+                        try {
+                            bufferedReader.close();
+                        } catch (IOException e) {
+                            //Log
+                        }
+                    }
+                }
+
+                movies = QueryUtils.extractFeaturesFromJson(json);
             }
+            
         });
+
+        Log.v("TAGLOG", ""+moviesList.get(0).getTitle());
 
         movieAdapter = new MovieAdapter(MainActivity.this, moviesList);
         recyclerView.setAdapter(movieAdapter);
