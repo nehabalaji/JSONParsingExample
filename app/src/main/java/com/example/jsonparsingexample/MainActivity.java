@@ -25,8 +25,13 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,44 +50,62 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                AssetManager assetManager = MainActivity.this.getAssets();
-                BufferedReader bufferedReader = null;
-                StringBuilder stringBuilder = new StringBuilder();
-                String json = "";
-                try{
-                    bufferedReader = new BufferedReader(new InputStreamReader(assetManager.open("movieJsonData.json")));
-                    String mLine;
-                    while ((mLine=bufferedReader.readLine()) != null){
-                        stringBuilder.append(mLine);
-                    }
-                    json = stringBuilder.toString();
-                    Log.v("TAG", json);
-                } catch (IOException e) {
-                    //Log
-                }
-                finally {
-                    if(bufferedReader!=null){
-                        try {
-                            bufferedReader.close();
-                        } catch (IOException e) {
-                            //Log
-                        }
-                    }
-                }
-
-                movies = QueryUtils.extractFeaturesFromJson(json);
-            }
-            
-        });
-
-        Log.v("TAGLOG", ""+moviesList.get(0).getTitle());
+        try {
+            moviesList = getMovie().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } 
 
         movieAdapter = new MovieAdapter(MainActivity.this, moviesList);
         recyclerView.setAdapter(movieAdapter);
         recyclerView.setHasFixedSize(true);
     }
 
+    private Future<List<Movies>> getMovie() {
+        Callable callable = new Callable() {
+            @Override
+            public Object call() throws Exception {
+
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        AssetManager assetManager = MainActivity.this.getAssets();
+                        BufferedReader bufferedReader = null;
+                        StringBuilder stringBuilder = new StringBuilder();
+                        String json = "";
+                        try {
+                            bufferedReader = new BufferedReader(new InputStreamReader(assetManager.open("movieJsonData.json")));
+                            String mLine;
+                            while ((mLine = bufferedReader.readLine()) != null) {
+                                stringBuilder.append(mLine);
+                            }
+                            json = stringBuilder.toString();
+                            Log.v("TAG", json);
+                        } catch (IOException e) {
+                            //Log
+                        } finally {
+                            if (bufferedReader != null) {
+                                try {
+                                    bufferedReader.close();
+                                } catch (IOException e) {
+                                    //Log
+                                }
+                            }
+                        }
+
+                        movies = QueryUtils.extractFeaturesFromJson(json);
+                        Log.v("LOGTAG", ""+movies.get(0).getTitle());
+                    }
+
+                });
+                return movies;
+            }
+
+
+        };
+
+        return executorService.submit(callable);
+    }
 }
