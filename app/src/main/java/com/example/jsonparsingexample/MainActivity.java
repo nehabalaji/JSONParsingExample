@@ -56,8 +56,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } 
-
+        }
         movieAdapter = new MovieAdapter(MainActivity.this, moviesList);
         recyclerView.setAdapter(movieAdapter);
         recyclerView.setHasFixedSize(true);
