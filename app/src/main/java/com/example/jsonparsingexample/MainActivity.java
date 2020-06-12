@@ -63,13 +63,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Future<List<Movies>> getMovie() {
-        Callable callable = new Callable() {
+        Callable<List<Movies>> callable = new Callable<List<Movies>>() {
             @Override
-            public Object call() throws Exception {
+            public List<Movies> call() throws Exception {
 
-                executorService.execute(new Runnable() {
-                    @Override
-                    public void run() {
+
                         AssetManager assetManager = MainActivity.this.getAssets();
                         BufferedReader bufferedReader = null;
                         StringBuilder stringBuilder = new StringBuilder();
@@ -96,15 +94,9 @@ public class MainActivity extends AppCompatActivity {
 
                         movies = QueryUtils.extractFeaturesFromJson(json);
                         Log.v("LOGTAG", ""+movies.get(0).getTitle());
-                    }
-
-                });
                 return movies;
             }
-
-
         };
-
         return executorService.submit(callable);
     }
 }
