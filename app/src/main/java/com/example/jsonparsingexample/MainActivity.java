@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public List<Movies> call() throws Exception {
 
-
                         AssetManager assetManager = MainActivity.this.getAssets();
                         BufferedReader bufferedReader = null;
                         StringBuilder stringBuilder = new StringBuilder();

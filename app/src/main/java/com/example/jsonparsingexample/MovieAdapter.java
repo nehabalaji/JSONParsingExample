@@ -19,7 +19,7 @@ import java.util.List;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MyViewHolder>{
 
     private Context context;
-    private List<Movies> movies = new ArrayList<>();
+    private List<Movies> movies;
 
 
     public MovieAdapter(Context context, List<Movies> moviesList){

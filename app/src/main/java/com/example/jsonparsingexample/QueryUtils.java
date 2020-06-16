@@ -20,7 +20,6 @@ public class QueryUtils {
         try {
             JSONArray jsonArray = new JSONArray(movieJson);
 
-
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 String title = jsonObject.getString("title");
